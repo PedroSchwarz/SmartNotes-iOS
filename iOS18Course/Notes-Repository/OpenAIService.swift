@@ -92,7 +92,7 @@ extension OpenAIService {
                                 if let content = chunk.choices.first?.delta.content {
                                     accumulatedText += content
                                     
-                                    if accumulatedText.count > 10 {
+                                    if accumulatedText.count > 20 {
                                         continuation.yield(accumulatedText)
                                         accumulatedText = ""
                                     }

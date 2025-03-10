@@ -96,7 +96,8 @@ struct GenerateNotesCard: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel: GenerateNotesViewModel = .init()
+    @Previewable @State var viewModel: GenerateNotesViewModel
+    = Injector.instance.container.resolve(GenerateNotesViewModel.self)!
     
     GenerateNotesCard()
         .environment(viewModel)

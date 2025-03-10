@@ -10,17 +10,13 @@ import SwiftData
 
 @main
 struct iOS18CourseApp: App {
-    var sharedModelContainer: ModelContainer? = nil
-    
     init() {
-        sharedModelContainer = AppDatabase.getInstance().sharedModelContainer
-        ClientNetwork.initialize(baseUrl: "https://api.openai.com/v1/")
+        Injector.instance.inject()
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer!)
     }
 }

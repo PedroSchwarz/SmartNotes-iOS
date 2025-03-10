@@ -9,8 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-//    @Environment(\.modelContext) private var modelContext
-//    @Query private var items: [Item]
     @State private var appRouter: AppRouter = AppRouter()
 
     var body: some View {
@@ -19,32 +17,10 @@ struct ContentView: View {
                 GenerateNotesView()
             }
             .environment(appRouter)
-            .navigationDestination(for: PreviousResultsRoutes.self) { route in
-                switch route {
-                case .previousResultNote(let notes):
-                    Text("here are your notes: \(notes)")
-                }
-            }
         }
     }
-
-//    private func addItem() {
-//        withAnimation {
-//            let newItem = Item(timestamp: Date())
-//            modelContext.insert(newItem)
-//        }
-//    }
-//
-//    private func deleteItems(offsets: IndexSet) {
-//        withAnimation {
-//            for index in offsets {
-//                modelContext.delete(items[index])
-//            }
-//        }
-//    }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

@@ -9,14 +9,14 @@ import Foundation
 import SwiftData
 
 struct AppDatabase {
-    static var instance: AppDatabase? = nil
+    static var instance: AppDatabase = .init()
     
     var sharedModelContainer: ModelContainer? = nil
     
     init() {
         sharedModelContainer = {
             let schema = Schema([
-                Item.self,
+                NoteEntity.self,
             ])
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -26,13 +26,5 @@ struct AppDatabase {
                 fatalError("Could not create ModelContainer: \(error)")
             }
         }()
-    }
-    
-    static func getInstance() -> AppDatabase {
-        if instance == nil {
-            instance = AppDatabase()
-        }
-        
-        return instance!
     }
 }

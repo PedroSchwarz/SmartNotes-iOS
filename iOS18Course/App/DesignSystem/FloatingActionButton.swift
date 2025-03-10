@@ -14,6 +14,7 @@ enum FloatingActionButtonType {
 
 struct FloatingActionButton: View {
     let type: FloatingActionButtonType
+    let backgroundColor: Color
     let action: () -> Void
     let image: String
     let secondaryImage: String?
@@ -21,8 +22,18 @@ struct FloatingActionButton: View {
     let verticalAlignment: VerticalAlignment
     let horizontalAlignment: HorizontalAlignment
     
-    init(type: FloatingActionButtonType = .regular, action: @escaping () -> Void, image: String, secondaryImage: String? = nil, showSecondaryImage: Bool = false, verticalAlignment: VerticalAlignment, horizontalAlignment: HorizontalAlignment) {
+    init(
+        type: FloatingActionButtonType = .regular,
+        backgroundColor: Color = Color(.systemBackground),
+        action: @escaping () -> Void,
+        image: String,
+        secondaryImage: String? = nil,
+        showSecondaryImage: Bool = false,
+        verticalAlignment: VerticalAlignment,
+        horizontalAlignment: HorizontalAlignment
+    ) {
         self.type = type
+        self.backgroundColor = backgroundColor
         self.action = action
         self.image = image
         self.secondaryImage = secondaryImage
@@ -46,19 +57,21 @@ struct FloatingActionButton: View {
                     withAnimation(.spring()) { action() }
                 }) {
                     Image(systemName: showSecondaryImage ? secondaryImage ?? image : image)
-                        .font(.system(size: 24))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20, alignment: .center)
                         .foregroundColor(.primary)
-                        .padding()
+                        .padding(20)
                         .if(
                             type == .regular,
                             content: {
-                                $0.background(Color(.systemBackground))
+                                $0.background(backgroundColor)
                             }
                         )
                         .if(type == .account,
                             content: {
-                                $0.background(AnimatedMeshGradient().mask(Circle().stroke(lineWidth: 10).blur(radius: 5)))
-                            }
+                            $0.background(AnimatedMeshGradient().mask(Circle().stroke(lineWidth: 10).blur(radius: 5)))
+                        }
                         )
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)

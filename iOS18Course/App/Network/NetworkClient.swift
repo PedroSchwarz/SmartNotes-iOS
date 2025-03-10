@@ -8,20 +8,28 @@
 import Foundation
 
 struct ClientNetwork {
+    static private var _instance: ClientNetwork?
+    
+    static var instance: ClientNetwork {
+        guard let instance = _instance else {
+            fatalError("ClientNetwork has not been initialized. Call `initialize(baseUrl:)` first.")
+        }
+        return instance
+    }
+    
     let baseUrl: String
     let urlSession: URLSession
     let jsonDecoder: JSONDecoder
     
-    static var instance: ClientNetwork?
+    private init(baseUrl: String) {
+        self.baseUrl = baseUrl
+        self.urlSession = URLSession.shared
+        self.jsonDecoder = JSONDecoder()
+    }
     
     static func initialize(baseUrl: String) {
-        if instance == nil {
-            instance = ClientNetwork(
-                baseUrl: baseUrl,
-                urlSession: URLSession.shared,
-                jsonDecoder: JSONDecoder()
-            )
-        }
+        guard _instance == nil else { return }
+        _instance = ClientNetwork(baseUrl: baseUrl)
     }
     
     func request<R: Decodable>(

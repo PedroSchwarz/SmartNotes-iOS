@@ -9,6 +9,14 @@ import SwiftUI
 
 @Observable
 class GenerateNotesViewModel {
+    let openAIService: OpenAIService
+    let localNotesService: LocalNotesService
+    
+    init(openAIService: OpenAIService, localNotesService: LocalNotesService) {
+        self.openAIService = openAIService
+        self.localNotesService = localNotesService
+    }
+    
     var inputText: String = ""
     private(set) var isLoading: Bool = false
     private(set) var showSignUp: Bool = false
@@ -16,6 +24,10 @@ class GenerateNotesViewModel {
     private(set) var errorMessage: String = ""
     private(set) var showScrollToTop: Bool = false
     private(set) var animateInputField: Bool = false
+    private(set) var showNoteOptions: Bool = false
+    private(set) var hideFloatingActionButton: Bool = false
+    var showSaveNoteAlert: Bool = false
+    var showSavedNotes: Bool = false
     
     private var streamTask: Task<Void, Never>?
     
@@ -31,51 +43,8 @@ class GenerateNotesViewModel {
         generatedNotes.isEmpty == false
     }
     
-    private var openAIService: OpenAIService {
-        OpenAIService.live(client: ClientNetwork.instance!)
-    }
-    
     func resetinputText() {
         inputText = ""
-    }
-    
-    func generateNotes() async {
-        guard !inputText.isEmpty else { return }
-        
-        isLoading = true
-        errorMessage = ""
-        generatedNotes = ""
-        
-        do {
-            generatedNotes = try await openAIService.generateNotes(inputText)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
-    
-    func generateNotesStream() async {
-        guard !inputText.isEmpty else { return }
-        
-        isLoading = true
-        
-        errorMessage = ""
-        generatedNotes = ""
-        
-        // Cancel any existing stream task
-        streamTask?.cancel()
-        
-        streamTask = Task {
-            do {
-                for try await chunk in openAIService.streamGeneratedNotes(inputText) {
-                    generatedNotes += chunk
-                }
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-            isLoading = false
-        }
     }
     
     func toggleSignUpVisibility() {
@@ -94,13 +63,70 @@ class GenerateNotesViewModel {
     }
     
     func triggerInputFieldAnimation() {
-//        withAnimation(.spring) {
-            animateInputField = true
-//        }
+        animateInputField = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            withAnimation(.spring) {
-                self.animateInputField = false
-//            }
+            self.animateInputField = false
+        }
+    }
+    
+    func toggleNoteOptions() {
+        showNoteOptions.toggle()
+    }
+    
+    func setHideFloatingActionButton(_ value: Bool) {
+        hideFloatingActionButton = value
+    }
+}
+
+// MARK: OpenAIService
+extension GenerateNotesViewModel {
+    func generateNotes() async {
+        guard !inputText.isEmpty else { return }
+        
+        isLoading = true
+        errorMessage = ""
+        generatedNotes = ""
+        
+        do {
+            generatedNotes = try await openAIService.generateNotes(inputText)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+    
+    @MainActor
+    func generateNotesStream() async {
+        guard !inputText.isEmpty else { return }
+        
+        isLoading = true
+        
+        errorMessage = ""
+        generatedNotes = ""
+        
+        streamTask?.cancel()
+        
+        streamTask = Task {
+            do {
+                for try await chunk in openAIService.streamGeneratedNotes(inputText) {
+                    generatedNotes += chunk
+                }
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isLoading = false
+        }
+    }
+}
+
+// MARK: LocalNotesService
+extension GenerateNotesViewModel {
+    func insertNote() {
+        do {
+            try localNotesService.insertNote(content: generatedNotes)
+        } catch {
+            print("Error inserting note: \(error.localizedDescription)")
         }
     }
 }
