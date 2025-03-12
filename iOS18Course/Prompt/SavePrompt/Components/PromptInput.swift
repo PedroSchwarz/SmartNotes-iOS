@@ -35,18 +35,9 @@ struct PromptInput<Content: View>: View {
                 .font(.title3)
                 .padding()
                 .background(
-                    Rectangle()
-                        .frame(height: 2)
-                        .foregroundColor(
-                            isInvalid
-                            ? .red
-                            : .secondary
-                        ),
-                    alignment: .bottom
-                )
-                .background(
-                    UnevenRoundedRectangle(topLeadingRadius: 8, topTrailingRadius: 8)
-                        .fill(Color(.secondarySystemBackground))
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke()
+                        .fill(isInvalid ? .red : .secondary)
                 )
             
             bottom()

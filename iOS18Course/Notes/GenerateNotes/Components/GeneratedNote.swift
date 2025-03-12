@@ -11,6 +11,7 @@ import MarkdownUI
 struct GeneratedNote: View {
     let notes: String
     let showNoteOptions: Bool
+    let summarize: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,9 +21,28 @@ struct GeneratedNote: View {
             
             Markdown(notes)
                 .markdownTheme(.fancy)
-                .textSelection(.enabled)
                 .font(.system(.body, design: .serif))
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = notes
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.doc")
+                    }
+                    
+                    ShareLink(item: notes) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    
+                    Button { summarize() } label: {
+                        Label("Summarize Note", systemImage: "sparkles")
+                    }
+                } preview: {
+                    Markdown(notes)
+                        .markdownTheme(.fancy)
+                        .font(.system(.body, design: .serif))
+                        .scaleEffect(0.5)
+                }
         }
         .padding(32)
         .background(
@@ -59,6 +79,7 @@ struct GeneratedNote: View {
 #Preview {
     GeneratedNote(
         notes: "",
-        showNoteOptions: false
+        showNoteOptions: false,
+        summarize: { }
     )
 }

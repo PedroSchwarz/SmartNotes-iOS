@@ -23,7 +23,7 @@ struct PromptItem: View {
                     .font(.headline)
                     .fontWeight(.medium)
                 
-                Text(prompt.subtitle)
+                Text(prompt.subtitle.isEmpty ? "-" : prompt.subtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -56,6 +56,7 @@ struct PromptItem: View {
                 longPress(prompt)
             }
         }))
+        .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: isSelected)
         .scaleEffect(isSelected ? 0.9 : 1)
         .animation(.spring, value: isSelected)
         .overlay(alignment: .topTrailing, content: {

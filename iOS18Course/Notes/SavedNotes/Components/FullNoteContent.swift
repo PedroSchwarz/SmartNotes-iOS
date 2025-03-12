@@ -21,6 +21,22 @@ struct FullNoteContent: View {
                 .font(.system(.body, design: .serif))
                 .padding(.vertical, 32)
                 .padding(.horizontal)
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = content
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.doc")
+                    }
+                    
+                    ShareLink(item: content) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                } preview: {
+                    Markdown(content)
+                        .markdownTheme(.fancy)
+                        .font(.system(.body, design: .serif))
+                        .scaleEffect(0.5)
+                }
         }
         .overlay(alignment: .topTrailing, content: {
             FloatingActionButton(

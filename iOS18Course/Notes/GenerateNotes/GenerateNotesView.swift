@@ -37,7 +37,18 @@ struct GenerateNotesView: View {
                             
                             GeneratedNote(
                                 notes: viewModel.generatedNotes,
-                                showNoteOptions: viewModel.showNoteOptions
+                                showNoteOptions: viewModel.showNoteOptions,
+                                summarize: {
+                                    scrollProxy.scrollTo("top")
+                                    
+                                    Task {
+                                       await viewModel.summarizeNote()
+                                        
+                                        DispatchQueue.main.async {
+                                            scrollProxy.scrollTo("bottom", anchor: .bottom)
+                                        }
+                                    }
+                                }
                             )
                             .padding(.top)
                             .padding(.bottom, 32)
@@ -53,7 +64,10 @@ struct GenerateNotesView: View {
                 .overlay(alignment: .bottom) {
                     ScrollToTopButton(
                         show: viewModel.showScrollToTop,
-                        scrollToTop: { scrollProxy.scrollTo("top", anchor: .top) }
+                        scrollToTop: {
+                            viewModel.toggleNoteOptions()
+                            scrollProxy.scrollTo("top", anchor: .top)
+                        }
                     )
                 }
                 .if(viewModel.hasGeneratedNotes) {
@@ -87,6 +101,7 @@ struct GenerateNotesView: View {
                     .ignoresSafeArea()
             }
         }
+        .sensoryFeedback(.selection, trigger: viewModel.generatedNotes)
         .alert("Save note?", isPresented: viewModel.showSaveNoteAlertBinding) {
             Button("Cancel", role: .cancel) {}
             

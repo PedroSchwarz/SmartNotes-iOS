@@ -9,13 +9,16 @@ import Foundation
 
 struct OpenAIService {
     let generateNotes: (_ text: String) async throws -> String
+    let summarizeNotes: (_ text: String) async throws -> String
     let streamGeneratedNotes: (_ text: String) -> AsyncThrowingStream<String, Error>
     
     init(
         generateNotes: @escaping (_: String) async throws -> String,
+        summarizeNotes: @escaping (_: String) async throws -> String,
         streamGeneratedNotes: @escaping (_: String) -> AsyncThrowingStream<String, Error>
     ) {
         self.generateNotes = generateNotes
+        self.summarizeNotes = summarizeNotes
         self.streamGeneratedNotes = streamGeneratedNotes
     }
 }
@@ -33,6 +36,41 @@ extension OpenAIService {
                     Message(
                         role: "user",
                         content: "Please convert this text into well-structured notes: \($0)"
+                    )
+                ]
+                
+                let requestBody: [String: Any] = [
+                    "model": "gpt-4o-mini",
+                    "messages": messages.map { ["role": $0.role, "content": $0.content] },
+                    "temperature": 0.7
+                ]
+                
+                guard let apiKey = ProcessInfo.processInfo.environment["API_KEY"] else {
+                    fatalError("No API_KEY variable set for the environment")
+                }
+                
+                do {
+                    let result: ChatCompletionResponse = try await client.request(
+                        for: "chat/completions",
+                        with: apiKey,
+                        httpMethod: "POST",
+                        requestBody: requestBody
+                    )
+                    
+                    return result.choices.first?.message.content ?? "No response generated"
+                } catch {
+                    throw error
+                }
+            },
+            summarizeNotes: {
+                let messages = [
+                    Message(
+                        role: "system",
+                        content: "You are a helpful assistant that generates well-structured notes from given text. Your focus this time is in summarizing the text into concise and organized notes. Making sure the key point is addressed and well describe."
+                    ),
+                    Message(
+                        role: "user",
+                        content: "Please summarize this note into a consice and organized one: \($0)"
                     )
                 ]
                 

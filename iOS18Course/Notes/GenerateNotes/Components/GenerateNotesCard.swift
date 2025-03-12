@@ -77,6 +77,8 @@ struct GenerateNotesCard: View {
                     .animation(.easeOut, value: animateInput)
                 
                 PrimaryButton(
+                    label: isLoading ? "Generating..." : "Generate Notes",
+                    image: "sparkles",
                     isLoading: isLoading,
                     isDisabled: isButtonDisabled
                 ) {

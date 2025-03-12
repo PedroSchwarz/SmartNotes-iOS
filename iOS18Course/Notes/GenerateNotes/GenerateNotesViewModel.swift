@@ -120,6 +120,23 @@ extension GenerateNotesViewModel {
             isLoading = false
         }
     }
+    
+    @MainActor
+    func summarizeNote() async {
+        guard !generatedNotes.isEmpty else { return }
+        
+        isLoading = true
+        errorMessage = ""
+        generatedNotes = ""
+        
+        do {
+            generatedNotes = try await openAIService.summarizeNotes(inputText)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
 }
 
 // MARK: LocalNotesService

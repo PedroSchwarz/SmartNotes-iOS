@@ -54,29 +54,20 @@ struct SavePromptSheet: View {
                         .padding(8)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(.primary, lineWidth: 1)
+                                .stroke(.secondary, lineWidth: 1)
                         )
                     
                     Spacer()
                     
-                    Button {
-                        viewModel.savePrompt()
-                        dismiss()
-                    } label: {
-                        Text("Save")
-                            .font(.title2)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke()
-                                    .fill(.secondary)
-                            )
-                    }
-                    .foregroundStyle(.primary)
-                    .opacity(viewModel.isFormValid == false ? 0.5 : 1)
-                    .disabled(viewModel.isFormValid == false)
-                    .animation(.easeInOut, value: viewModel.isFormValid)
+                    PrimaryButton(
+                        label: "Save",
+                        isLoading: false,
+                        isDisabled: viewModel.isFormValid == false,
+                        action: {
+                            viewModel.savePrompt()
+                            dismiss()
+                        }
+                    )
                 }
                 .padding()
                 .padding(.top, 32)

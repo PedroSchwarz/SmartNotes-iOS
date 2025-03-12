@@ -11,19 +11,32 @@ struct PrimaryButton: View {
     @State private var counter: Int = 0
     @State private var origin: CGPoint = .zero
     
+    let label: String
+    let image: String?
     let isLoading: Bool
     let isDisabled: Bool
     let action: () -> Void
     
+    init(label: String, image: String? = nil, isLoading: Bool, isDisabled: Bool, action: @escaping () -> Void) {
+        self.label = label
+        self.image = image
+        self.isLoading = isLoading
+        self.isDisabled = isDisabled
+        self.action = action
+    }
+    
     var body: some View {
         Button(action: action) {
             HStack {
-                if isLoading {
-                    LoadingIndicator()
-                } else {
-                    Image(systemName: "sparkles")
+                if let image = image {
+                    if isLoading {
+                        LoadingIndicator()
+                    } else {
+                        Image(systemName: image)
+                    }
                 }
-                Text(isLoading ? "Generating..." : "Generate Notes")
+                
+                Text(label)
             }
             .padding()
             .frame(maxWidth: .infinity)
@@ -79,7 +92,7 @@ struct PrimaryButton: View {
 }
 
 #Preview {
-    PrimaryButton(isLoading: false, isDisabled: true) {
+    PrimaryButton(label: "Generate Notes", image: "sparkles", isLoading: false, isDisabled: true) {
         
     }
     .padding(40)
