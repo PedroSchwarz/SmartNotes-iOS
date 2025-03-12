@@ -8,17 +8,26 @@
 import SwiftUI
 
 struct GenerateNotesCard: View {
-    @Environment(GenerateNotesViewModel.self) private var viewModel: GenerateNotesViewModel
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isFocused: Bool
     
+    let input: Binding<String>
+    let isLoading: Bool
+    let isButtonDisabled: Bool
+    let selectPrompt: (PromptEntity) -> Void
+    let resetInput: () -> Void
+    let animateInput: Bool
+    let errorMessage: String
+    let generateNotes: () async -> Void
+    
+    var hasErrorMessage: Bool {
+        errorMessage.isEmpty == false
+    }
     
     var body: some View {
-        @Bindable var viewModel = viewModel
-        
         VStack(spacing: 20) {
             VStack(spacing: 20) {
-                if !viewModel.isLoading {
+                if !isLoading {
                     Text("Generate Notes")
                         .customAttribute(EmphasisAttribute())
                         .transition(TextTransition())
@@ -34,10 +43,10 @@ struct GenerateNotesCard: View {
             }
             .padding(.horizontal, 32)
             
-            PromptsList(onSelect: viewModel.useTemplate(for:))
+            PromptsList(onSelect: selectPrompt)
             
             VStack(spacing: 20) {
-                TextEditor(text: $viewModel.inputText)
+                TextEditor(text: input)
                     .frame(height: 200)
                     .padding(8)
                     .background(
@@ -53,34 +62,32 @@ struct GenerateNotesCard: View {
                     .focused($isFocused)
                     .toolbar {
                         ToolbarItem(placement: .keyboard) {
-                            Button(action: {
-                                viewModel.resetinputText()
-                            }) {
+                            Button(action: resetInput) {
                                 Text("Clear text")
                             }
                         }
                     }
-                    .scaleEffect(viewModel.animateInputField ? 1.05 : 1)
+                    .scaleEffect(animateInput ? 1.05 : 1)
                     .overlay {
-                        if viewModel.animateInputField {
+                        if animateInput {
                             AnimatedMeshGradient()
                                 .blendMode(colorScheme == .dark ? .darken : .screen)
                         }
                     }
-                    .animation(.easeOut, value: viewModel.animateInputField)
+                    .animation(.easeOut, value: animateInput)
                 
                 PrimaryButton(
-                    isLoading: viewModel.isLoading,
-                    isDisabled: viewModel.isGenerationDisabled
+                    isLoading: isLoading,
+                    isDisabled: isButtonDisabled
                 ) {
                     Task {
-                        await viewModel.generateNotesStream()
+                        await generateNotes()
                         hideKeyboard()
                     }
                 }
                 
-                if viewModel.hasErroMessage {
-                    Text(viewModel.errorMessage)
+                if hasErrorMessage {
+                    Text(errorMessage)
                         .foregroundColor(.red)
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -96,9 +103,14 @@ struct GenerateNotesCard: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel: GenerateNotesViewModel
-    = Injector.instance.container.resolve(GenerateNotesViewModel.self)!
-    
-    GenerateNotesCard()
-        .environment(viewModel)
+    GenerateNotesCard(
+        input: .constant(""),
+        isLoading: false,
+        isButtonDisabled: false,
+        selectPrompt: { _ in },
+        resetInput: { },
+        animateInput: false,
+        errorMessage: "",
+        generateNotes: { }
+    )
 }

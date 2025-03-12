@@ -5,7 +5,7 @@
 //  Created by Pedro Schwarz Rodrigues on 10/3/2025.
 //
 
-import Foundation
+import SwiftUI
 
 @Observable
 class SavedNotesViewModel {
@@ -18,6 +18,13 @@ class SavedNotesViewModel {
     private(set) var notes: [NoteEntity] = []
     private(set) var selectedNote: NoteEntity? = nil
     private(set) var indexesToDelete: IndexSet? = nil
+    
+    var showDeleteAlert: Binding<Bool> {
+        .init(
+            get: { self.showDeleteNoteAlert },
+            set: { _ in self.setIndexesToDelete(nil) }
+        )
+    }
     
     var notesListIsEmpty: Bool { notes.isEmpty }
     
@@ -34,7 +41,7 @@ class SavedNotesViewModel {
 
 // MARK: LocalNotesService
 extension SavedNotesViewModel {
-    func loadNotes() {
+    func load() {
         do {
             notes = try localNotesService.fetchNotes()
         } catch {
@@ -46,7 +53,7 @@ extension SavedNotesViewModel {
         do {
             try localNotesService.deleteNote(at: indexesToDelete!, from: notes)
         } catch {
-            print("Error trying to delete notes: \(error)")
+            print("Error trying to delete note: \(error)")
         }
     }
     

@@ -27,6 +27,7 @@ struct PrimaryButton: View {
             }
             .padding()
             .frame(maxWidth: .infinity)
+            .animation(.none, value: isLoading)
         }
         .if(isDisabled == false) {
             $0.background(

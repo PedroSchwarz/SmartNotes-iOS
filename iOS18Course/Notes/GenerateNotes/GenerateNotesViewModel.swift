@@ -19,37 +19,35 @@ class GenerateNotesViewModel {
     
     var inputText: String = ""
     private(set) var isLoading: Bool = false
-    private(set) var showSignUp: Bool = false
     private(set) var generatedNotes: String = ""
     private(set) var errorMessage: String = ""
     private(set) var showScrollToTop: Bool = false
     private(set) var animateInputField: Bool = false
     private(set) var showNoteOptions: Bool = false
-    private(set) var hideFloatingActionButton: Bool = false
-    var showSaveNoteAlert: Bool = false
-    var showSavedNotes: Bool = false
+    private var saveNoteAlert: Bool = false
+    private var savePromptSheet: Bool = false
+    
+    var showSaveNoteAlertBinding: Binding<Bool> {
+        .init { self.saveNoteAlert }
+        set: { value in self.saveNoteAlert = value }
+    }
+    
+    var showPromptSheetBinding: Binding<Bool> {
+        .init { self.savePromptSheet }
+        set: { value in self.savePromptSheet = value }
+    }
     
     private var streamTask: Task<Void, Never>?
     
-    var isGenerationDisabled: Bool {
-        inputText.isEmpty
-    }
+    var isGenerationDisabled: Bool { inputText.isEmpty }
     
-    var hasErroMessage: Bool {
-        errorMessage.isEmpty == false
-    }
+    var hasGeneratedNotes: Bool { generatedNotes.isEmpty == false }
     
-    var hasGeneratedNotes: Bool {
-        generatedNotes.isEmpty == false
-    }
+    func showNoteAlert() { saveNoteAlert = true }
     
-    func resetinputText() {
-        inputText = ""
-    }
+    func showPromptSheet() { savePromptSheet = true }
     
-    func toggleSignUpVisibility() {
-        showSignUp.toggle()
-    }
+    func resetinputText() { inputText = "" }
     
     func setScrollToTop(value: Bool) {
         if showScrollToTop != value {
@@ -57,7 +55,7 @@ class GenerateNotesViewModel {
         }
     }
     
-    func useTemplate(for prompt: PromptTemplate) {
+    func usePrompt(for prompt: PromptEntity) {
         inputText = prompt.content
         triggerInputFieldAnimation()
     }
@@ -73,8 +71,12 @@ class GenerateNotesViewModel {
         showNoteOptions.toggle()
     }
     
-    func setHideFloatingActionButton(_ value: Bool) {
-        hideFloatingActionButton = value
+    func resetState() {
+        inputText = ""
+        generatedNotes = ""
+        errorMessage = ""
+        showScrollToTop = false
+        showNoteOptions = false
     }
 }
 

@@ -45,5 +45,16 @@ struct Injector {
         container.register(SavedNotesViewModel.self, factory: { r in
                 .init(localNotesService: r.resolve(LocalNotesService.self)!)
         })
+        
+        container.register(LocalPromptsService.self) { r in LocalPromptsService(modelContext: r.resolve(ModelContext.self)!) }
+            .inObjectScope(.container)
+        
+        container.register(PromptsViewModel.self) { r in
+                .init(localPromptsService: r.resolve(LocalPromptsService.self)!)
+        }
+        
+        container.register(SavePromptViewModel.self) { r in
+                .init(localPromptsService: r.resolve(LocalPromptsService.self)!)
+        }
     }
 }

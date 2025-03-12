@@ -14,11 +14,9 @@ struct ScrollToTopButton: View {
     var body: some View {
         FloatingActionButton(
             action: scrollToTop,
-            image: "chevron.up",
-            verticalAlignment: .bottom,
-            horizontalAlignment: .center
+            image: "chevron.up"
         )
-        .padding(16)
+        .padding(8)
         .offset(y: show ? 0 : 50)
         .opacity(show ? 1 : 0)
         .animation(.default, value: show)

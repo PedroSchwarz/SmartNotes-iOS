@@ -17,6 +17,7 @@ struct AppDatabase {
         sharedModelContainer = {
             let schema = Schema([
                 NoteEntity.self,
+                PromptEntity.self
             ])
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

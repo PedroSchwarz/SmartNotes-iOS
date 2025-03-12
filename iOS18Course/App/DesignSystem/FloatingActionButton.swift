@@ -19,8 +19,8 @@ struct FloatingActionButton: View {
     let image: String
     let secondaryImage: String?
     let showSecondaryImage: Bool
-    let verticalAlignment: VerticalAlignment
-    let horizontalAlignment: HorizontalAlignment
+    let size: CGFloat
+    let innerPadding: Double
     
     init(
         type: FloatingActionButtonType = .regular,
@@ -29,8 +29,8 @@ struct FloatingActionButton: View {
         image: String,
         secondaryImage: String? = nil,
         showSecondaryImage: Bool = false,
-        verticalAlignment: VerticalAlignment,
-        horizontalAlignment: HorizontalAlignment
+        size: CGFloat = 20,
+        innerPadding: Double = 20
     ) {
         self.type = type
         self.backgroundColor = backgroundColor
@@ -38,58 +38,39 @@ struct FloatingActionButton: View {
         self.image = image
         self.secondaryImage = secondaryImage
         self.showSecondaryImage = showSecondaryImage
-        self.verticalAlignment = verticalAlignment
-        self.horizontalAlignment = horizontalAlignment
+        self.size = size
+        self.innerPadding = innerPadding
     }
     
     var body: some View {
-        VStack {
-            if verticalAlignment == .bottom {
-                Spacer()
-            }
-            
-            HStack {
-                if horizontalAlignment == .trailing {
-                    Spacer()
+        
+        Button(action: {
+            withAnimation(.spring()) { action() }
+        }) {
+            Image(systemName: showSecondaryImage ? secondaryImage ?? image : image)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size, alignment: .center)
+                .foregroundColor(.primary)
+                .padding(innerPadding)
+                .if(
+                    type == .regular,
+                    content: {
+                        $0.background(backgroundColor)
+                    }
+                )
+                .if(type == .account,
+                    content: {
+                    $0.background(AnimatedMeshGradient().mask(Circle().stroke(lineWidth: 10).blur(radius: 5)))
                 }
-                
-                Button(action: {
-                    withAnimation(.spring()) { action() }
-                }) {
-                    Image(systemName: showSecondaryImage ? secondaryImage ?? image : image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20, alignment: .center)
-                        .foregroundColor(.primary)
-                        .padding(20)
-                        .if(
-                            type == .regular,
-                            content: {
-                                $0.background(backgroundColor)
-                            }
-                        )
-                        .if(type == .account,
-                            content: {
-                            $0.background(AnimatedMeshGradient().mask(Circle().stroke(lineWidth: 10).blur(radius: 5)))
-                        }
-                        )
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                
-                if horizontalAlignment == .leading {
-                    Spacer()
-                }
-            }
-            
-            if verticalAlignment == .top {
-                Spacer()
-            }
+                )
+                .clipShape(Circle())
+                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                .contentTransition(.symbolEffect(.replace))
         }
     }
 }
 
 #Preview {
-    FloatingActionButton(action: { }, image: "person.crop.circle", verticalAlignment: .top, horizontalAlignment: .trailing)
+    FloatingActionButton(action: { }, image: "person.crop.circle")
 }
