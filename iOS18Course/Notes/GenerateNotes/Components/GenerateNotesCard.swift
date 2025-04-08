@@ -14,11 +14,13 @@ struct GenerateNotesCard: View {
     let input: Binding<String>
     let isLoading: Bool
     let isButtonDisabled: Bool
+    let isRecordingEnabled: Bool
     let selectPrompt: (PromptEntity) -> Void
     let resetInput: () -> Void
     let animateInput: Bool
     let errorMessage: String
     let generateNotes: () async -> Void
+    let onRecordingChanged: (_ isRecording: Bool) -> Void
     
     var hasErrorMessage: Bool {
         errorMessage.isEmpty == false
@@ -76,15 +78,21 @@ struct GenerateNotesCard: View {
                     }
                     .animation(.easeOut, value: animateInput)
                 
-                PrimaryButton(
-                    label: isLoading ? "Generating..." : "Generate Notes",
-                    image: "sparkles",
-                    isLoading: isLoading,
-                    isDisabled: isButtonDisabled
-                ) {
-                    Task {
-                        await generateNotes()
-                        hideKeyboard()
+                HStack {
+                    PrimaryButton(
+                        label: isLoading ? "Generating..." : "Generate Notes",
+                        image: "sparkles",
+                        isLoading: isLoading,
+                        isDisabled: isButtonDisabled
+                    ) {
+                        Task {
+                            await generateNotes()
+                            hideKeyboard()
+                        }
+                    }
+                    
+                    if (isRecordingEnabled) {
+                        SpeechToTextButton(onToggle: onRecordingChanged)
                     }
                 }
                 
@@ -109,10 +117,12 @@ struct GenerateNotesCard: View {
         input: .constant(""),
         isLoading: false,
         isButtonDisabled: false,
+        isRecordingEnabled: true,
         selectPrompt: { _ in },
         resetInput: { },
         animateInput: false,
         errorMessage: "",
-        generateNotes: { }
+        generateNotes: { },
+        onRecordingChanged: { _ in }
     )
 }

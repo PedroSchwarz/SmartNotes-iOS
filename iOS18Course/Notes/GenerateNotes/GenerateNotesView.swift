@@ -18,11 +18,13 @@ struct GenerateNotesView: View {
                             input: $viewModel.inputText,
                             isLoading: viewModel.isLoading,
                             isButtonDisabled: viewModel.isGenerationDisabled,
+                            isRecordingEnabled: viewModel.isRecordingEnabled,
                             selectPrompt: viewModel.usePrompt(for:),
                             resetInput: viewModel.resetinputText,
                             animateInput: viewModel.animateInputField,
                             errorMessage: viewModel.errorMessage,
-                            generateNotes: viewModel.generateNotesStream
+                            generateNotes: viewModel.generateNotesStream,
+                            onRecordingChanged: viewModel.handleRecording(_:)
                         )
                         .padding()
                         .padding(.top, height * 0.1)
@@ -42,7 +44,7 @@ struct GenerateNotesView: View {
                                     scrollProxy.scrollTo("top")
                                     
                                     Task {
-                                       await viewModel.summarizeNote()
+                                        await viewModel.summarizeNote()
                                         
                                         DispatchQueue.main.async {
                                             scrollProxy.scrollTo("bottom", anchor: .bottom)
@@ -55,8 +57,8 @@ struct GenerateNotesView: View {
                             .id("bottom")
                         }
                     }
+                    .scrollTargetLayout()
                 }
-                .scrollTargetLayout()
                 .onScrollPhaseChange { _, phase in hideTopActions(phase.isScrolling) }
                 .onChange(of: viewModel.generatedNotes) { _, _ in
                     scrollProxy.scrollTo("bottom", anchor: .bottom)
@@ -112,6 +114,7 @@ struct GenerateNotesView: View {
                 }
             }
         }
+        .task { await viewModel.checkIfCanRecord() }
         .sheet(isPresented: viewModel.showPromptSheetBinding) { SavePromptSheet(promptContent: viewModel.inputText) }
         .environment(viewModel)
     }

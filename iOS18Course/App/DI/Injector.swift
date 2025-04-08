@@ -35,10 +35,14 @@ struct Injector {
         container.register(OpenAIService.self, factory: { r in OpenAIService.live(client: r.resolve(ClientNetwork.self)!) })
             .inObjectScope(.container)
         
+        container.register(SpeechRecognizer.self, factory: { r in SpeechRecognizer() })
+            .inObjectScope(.container)
+        
         container.register(GenerateNotesViewModel.self, factory: { r in
                 .init(
                     openAIService: r.resolve(OpenAIService.self)!,
-                    localNotesService: r.resolve(LocalNotesService.self)!
+                    localNotesService: r.resolve(LocalNotesService.self)!,
+                    speechRecognizer: r.resolve(SpeechRecognizer.self)!
                 )
         })
         

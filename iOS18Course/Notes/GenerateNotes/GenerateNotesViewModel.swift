@@ -11,10 +11,12 @@ import SwiftUI
 class GenerateNotesViewModel {
     let openAIService: OpenAIService
     let localNotesService: LocalNotesService
+    let speechRecognizer: SpeechRecognizer
     
-    init(openAIService: OpenAIService, localNotesService: LocalNotesService) {
+    init(openAIService: OpenAIService, localNotesService: LocalNotesService, speechRecognizer: SpeechRecognizer) {
         self.openAIService = openAIService
         self.localNotesService = localNotesService
+        self.speechRecognizer = speechRecognizer
     }
     
     var inputText: String = ""
@@ -24,6 +26,7 @@ class GenerateNotesViewModel {
     private(set) var showScrollToTop: Bool = false
     private(set) var animateInputField: Bool = false
     private(set) var showNoteOptions: Bool = false
+    private(set) var isRecordingEnabled: Bool = false
     private var saveNoteAlert: Bool = false
     private var savePromptSheet: Bool = false
     
@@ -146,6 +149,25 @@ extension GenerateNotesViewModel {
             try localNotesService.insertNote(content: generatedNotes)
         } catch {
             print("Error inserting note: \(error.localizedDescription)")
+        }
+    }
+}
+
+// MARK: SpeechRecognizer
+extension GenerateNotesViewModel {
+    @MainActor
+    func checkIfCanRecord() async {
+        isRecordingEnabled = await speechRecognizer.canRecordAudio()
+    }
+    
+    @MainActor
+    func handleRecording(_ isRecording: Bool) {
+        if isRecording {
+            speechRecognizer.resetTranscript()
+            speechRecognizer.startTranscribing()
+        } else {
+            speechRecognizer.stopTranscribing()
+            inputText = speechRecognizer.transcript
         }
     }
 }

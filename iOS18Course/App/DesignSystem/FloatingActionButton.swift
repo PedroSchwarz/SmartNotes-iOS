@@ -43,7 +43,6 @@ struct FloatingActionButton: View {
     }
     
     var body: some View {
-        
         Button(action: {
             withAnimation(.spring()) { action() }
         }) {
